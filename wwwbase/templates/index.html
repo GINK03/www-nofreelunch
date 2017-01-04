@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block body %}
+<script>
+$(function() {
+  $.widget("ui.tooltip", $.ui.tooltip, {
+    options: {
+        content: function () {
+            return $(this).prop('title');
+        }
+    }
+  });
+  $('#proofreaded').tooltip();
+  $('input#RNN').bind('click', function() {
+    $.getJSON('/_rnn_check', {
+      contents: $('textarea[name="proofreading"]').val(),
+    }, function(data) {
+      //console.log(data);
+      color_htmls = ""
+      let i = 0;
+      data['result'].map(function(x) { 
+        var ents = x.split(',');
+        proposes = [];
+        ents.map(function(x2) {
+           proposes.push(x2.split(':')[0]);
+        });
+        proposes.shift();
+
+        var term_weight = ents[0].split(':');
+        var term = term_weight[0];
+        var weight = 255*(Math.abs(parseFloat(term_weight[1]))/20.);
+        color_htmls += '<a title="' + proposes.join('<br/>') + 
+            '" class="ent' + i.toString() + 
+						'" style="font-size:1.3em; float:left; color:' +
+            'rgb(' + Math.round(weight).toString() + ',0,0)">' + term + '</a>';
+        i += 1;
+      });
+			$('div#proofreaded').html(color_htmls);
+    });
+    //console.log("log");
+    return false;
+  });
+});
+</script>
+<h1>{{title}}</h1>
+<p>RNNが学習してきた文章から乖離率を見ることで、文章校正の候補を分析します</p>
+<select name="select" class="bsize" id="selecter" onChange="getSelect(0,this.value)">
+ <option value="自動">モデルの自動選択</option>
+ <option value="読売1">読売1</option>
+ <option value="suumo1">suumo1</option>
+</select>
+<input type="button" id="RNN" value="分析">
+
+<!-- <img width="100px" src="{{url_for('static', filename='nvidia.jpg')}}" alt="snake"/> -->
+<br>
+<br>
+<textarea style="width: 80%; height: 250px; font-size:1.5em; margin-bottom:10px;" name="proofreading"></textarea>
+
+<br>
+<p>単語をマウスオーバーすると、校正対象の候補の単語の一覧をヒントで出力します</p>
+<div style="overflow:scroll; width: 80%; height: 250px; margin-top:0px; border: 1px solid #000000;" id="proofreaded"></div>
+
+<br>
+{% endblock %}
