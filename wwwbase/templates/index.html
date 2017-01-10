@@ -2,6 +2,35 @@
 {% block body %}
 <script>
 $(function() {
+  // sytleの値が変更されたときのイベントハンドリングを有効にする
+  var ev = new $.Event('style'),
+  orig = $.fn.css;
+  $.fn.css = function() {
+    $(this).trigger(ev);
+     return orig.apply(this, arguments);
+  };
+  // スライダーを有効にする
+  $("div#slider").slider();
+  $("span#slider-param").css({'left': '20%'});
+  var TH = 20;
+  $('span#slider-param').bind('style', function(e) {
+    let param = $(this).attr('style')
+      .replace(/left/g, '')
+      .replace(/\s{1,}/g, '')
+      .replace(/;/g, '')
+      .replace(/:/g, '')
+      .replace(/%/g, '');
+    console.log(param);
+    TH = parseInt(param);
+    for( let i = 0; i < 1000; i++) {
+      if ( $('a').hasClass('ent' + i.toString()) == false) break;
+      let score = $('a.ent' + i.toString()).attr('optional'); 
+      var weight = 255*(Math.abs(parseFloat(score))/(TH+1.));
+      $('a.ent' + i.toString()).css( {"font-size":"1.2em", "float":"left", "color":'rgb(' + 
+         Math.round(weight).toString() + ',0,0)' });
+    }
+  });
+  // tooltipの改行が表示されないのでオーバライドして、有効にする
   $.widget("ui.tooltip", $.ui.tooltip, {
     options: {
         content: function () {
@@ -11,6 +40,8 @@ $(function() {
   });
   $('#proofreaded').tooltip();
   $('input#RNN').bind('click', function() {
+    // ここで現在実行中を意味するアニメーションを表示
+    $("div#anime-running").html('<img style="display:hidden;" src="/static/running.gif">');
     $.getJSON('/_rnn_check', {
       contents: $('textarea[name="proofreading"]').val(),
     }, function(data) {
@@ -27,13 +58,16 @@ $(function() {
 
         var term_weight = ents[0].split(':');
         var term = term_weight[0];
-        var weight = 255*(Math.abs(parseFloat(term_weight[1]))/20.);
-        color_htmls += '<a title="' + proposes.join('<br/>') + 
-            '" class="ent' + i.toString() + 
-						'" style="font-size:1.3em; float:left; color:' +
+        var weight = 255*(Math.abs(parseFloat(term_weight[1]))/(TH+1.));
+        color_htmls += '<a title="' + proposes.join('<br/>') + '" ' + 
+            'optional="' + Math.abs(parseFloat(term_weight[1])).toString() + '"' + 
+            'class="ent' + i.toString() + '" ' + 
+						'style="font-size:1.2em; float:left; color:' +
             'rgb(' + Math.round(weight).toString() + ',0,0)">' + term + '</a>';
         i += 1;
       });
+      // ここで現在実行中を意味するアニメーションを消す
+      $("div#anime-running").html('');
 			$('div#proofreaded').html(color_htmls);
     });
     //console.log("log");
@@ -42,7 +76,13 @@ $(function() {
 });
 </script>
 <h1>{{title}}</h1>
+<div id="anime-running" ></div> 
 <p>RNNが学習してきた文章から乖離率を見ることで、文章校正の候補を分析します</p>
+<br>
+<p>スライダーによりしきい値を変更することができます</p>
+<div id="slider" class="ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content">
+  <span tabindex="0" id="slider-param" class="ui-slider-handle ui-corner-all ui-state-default" style="left: 20%;"></span>
+</div>
 <select name="select" class="bsize" id="selecter" onChange="getSelect(0,this.value)">
  <option value="自動">モデルの自動選択</option>
  <option value="読売1">読売1</option>
