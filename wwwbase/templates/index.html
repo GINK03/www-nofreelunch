@@ -45,10 +45,12 @@ $(function() {
     $.getJSON('/_rnn_check', {
       contents: $('textarea[name="proofreading"]').val(),
     }, function(data) {
-      //console.log(data);
+      console.log(data);
       color_htmls = ""
       let i = 0;
       data['result'].map(function(x) { 
+        let original = x.match(/<org>(.*?)<\/org>/)[1];
+        console.log('orig', original);
         var ents = x.split(',');
         proposes = [];
         ents.map(function(x2) {
@@ -58,13 +60,22 @@ $(function() {
 
         var term_weight = ents[0].split(':');
         var term = term_weight[0];
-        var weight = 255*(Math.abs(parseFloat(term_weight[1]))/(TH+1.));
-        color_htmls += '<a title="' + proposes.join('<br/>') + '" ' + 
+        if( term == original ) {
+          var weight = 255*(Math.abs(parseFloat(term_weight[1]))/(TH+1.));
+          color_htmls += '<a title="' + proposes.join('<br/>') + '" ' + 
             'optional="' + Math.abs(parseFloat(term_weight[1])).toString() + '"' + 
             'class="ent' + i.toString() + '" ' + 
 						'style="font-size:1.2em; float:left; color:' +
             'rgb(' + Math.round(weight).toString() + ',0,0)">' + term + '</a>';
-        i += 1;
+          i += 1;
+        }else {
+          color_htmls += '<a title="' + proposes.join('<br/>') + '" ' + 
+            'optional="' + Math.abs(parseFloat(term_weight[1])).toString() + '"' + 
+            'class="ent' + i.toString() + '" ' + 
+						'style="font-size:1.2em; float:left; color:' +
+            'rgb(0,0,255)">' + original + '</a>';
+          i += 1;
+        } 
       });
       // ここで現在実行中を意味するアニメーションを消す
       $("div#anime-running").html('');
