@@ -10,8 +10,11 @@ app = Flask(__name__)
 @app.route('/_rnn_check')
 def add_numbers():
     contents = request.args.get('contents', "", type=str)
+    print(contents.replace('\n', '<br>'))
+    contents = contents.replace('\n', '<br>')
     res = os.popen('echo "' + contents + '" | p3 ../../chainer-term-rnn/ConditionalRandomField.py').read()
-    return jsonify(result=json.loads(res))
+    return json.dumps({'result':json.loads(res)})
+    #return res
 
 @app.route("/")
 def hello():
