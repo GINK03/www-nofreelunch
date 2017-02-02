@@ -1,0 +1,29 @@
+{
+  "IamFleetRole": "arn:aws:iam::596985414779:role/aws-ec2-spot-fleet-role",
+  "AllocationStrategy": "lowestPrice",
+  "TargetCapacity": 1,
+  "SpotPrice": "0.105",
+  "ValidFrom": "2017-02-02T06:21:37Z",
+  "ValidUntil": "2018-02-02T06:21:37Z",
+  "TerminateInstancesWithExpiration": true,
+  "LaunchSpecifications": [
+    {
+      "ImageId": "ami-5ec1673e",
+      "InstanceType": "c3.large",
+      "KeyName": "ansible-test",
+      "SpotPrice": "0.105",
+      "BlockDeviceMappings": [
+        {
+          "DeviceName": "/dev/xvda",
+          "Ebs": {
+            "DeleteOnTermination": true,
+            "VolumeType": "gp2",
+            "VolumeSize": 8,
+            "SnapshotId": "snap-15cfb226"
+          }
+        }
+      ]
+    }
+  ],
+  "Type": "request"
+}

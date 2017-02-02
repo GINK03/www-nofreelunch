@@ -1,0 +1,9 @@
+{
+  "ImageId": "ami-5a7dc03a",
+  "KeyName": "ansible-key",
+  "SecurityGroupIds": [ "sg-1532a76d" ],
+  "InstanceType": "m3.medium",
+  "IamInstanceProfile": {
+      "Arn": "arn:aws:iam::596985414779:instance-profile/ansible-role"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "ImageId": "ami-f8cdbf9f",
+  "KeyName": "ansible-test",
+  "InstanceType": "m3.medium"
+}
